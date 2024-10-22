@@ -56,11 +56,9 @@ compile_error!("Please select a runtime version: [rt-tokio, rt-async-std]");
 compile_error!("Please select only one runtime version");
 
 extern crate byteorder;
-extern crate integer_encoding;
 #[macro_use]
 extern crate log;
 extern crate ordered_float;
-extern crate threadpool;
 
 // NOTE: this macro has to be defined before any modules. See:
 // https://danielkeep.github.io/quick-intro-to-macros.html#some-more-gotchas

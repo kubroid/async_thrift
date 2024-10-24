@@ -95,14 +95,17 @@ where
         }
     }
 
+    #[inline]
     async fn read_message_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn read_struct_begin(&mut self) -> crate::Result<Option<TStructIdentifier>> {
         Ok(None)
     }
 
+    #[inline]
     async fn read_struct_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
@@ -119,10 +122,12 @@ where
         ))
     }
 
+    #[inline]
     async fn read_field_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn read_bytes(&mut self) -> crate::Result<Vec<u8>> {
         let num_bytes = self.read_i32().await? as usize;
         let mut buf = vec![0u8; num_bytes];
@@ -133,6 +138,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn read_bool(&mut self) -> crate::Result<bool> {
         let b = self.read_i8().await?;
         match b {
@@ -141,10 +147,12 @@ where
         }
     }
 
+    #[inline]
     async fn read_i8(&mut self) -> crate::Result<i8> {
         self.transport.read_i8().await.map_err(From::from)
     }
 
+    #[inline]
     async fn read_i16(&mut self) -> crate::Result<i16> {
         self.transport
             .read_i16::<BigEndian>()
@@ -152,6 +160,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn read_i32(&mut self) -> crate::Result<i32> {
         self.transport
             .read_i32::<BigEndian>()
@@ -159,6 +168,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn read_i64(&mut self) -> crate::Result<i64> {
         self.transport
             .read_i64::<BigEndian>()
@@ -166,6 +176,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn read_double(&mut self) -> crate::Result<f64> {
         self.transport
             .read_f64::<BigEndian>()
@@ -173,6 +184,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn read_string(&mut self) -> crate::Result<String> {
         let bytes = self.read_bytes().await?;
         String::from_utf8(bytes).map_err(From::from)
@@ -184,16 +196,19 @@ where
         Ok(TListIdentifier::new(element_type, size))
     }
 
+    #[inline]
     async fn read_list_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn read_set_begin(&mut self) -> crate::Result<TSetIdentifier> {
         let element_type: TType = self.read_byte().await.and_then(field_type_from_u8)?;
         let size = self.read_i32().await?;
         Ok(TSetIdentifier::new(element_type, size))
     }
 
+    #[inline]
     async fn read_set_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
@@ -205,6 +220,7 @@ where
         Ok(TMapIdentifier::new(key_type, value_type, size))
     }
 
+    #[inline]
     async fn read_map_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
@@ -212,6 +228,7 @@ where
     // utility
     //
 
+    #[inline]
     async fn read_byte(&mut self) -> crate::Result<u8> {
         self.transport.read_u8().await.map_err(From::from)
     }
@@ -236,14 +253,17 @@ where
         }
     }
 
+    #[inline]
     async fn write_message_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn write_struct_begin(&mut self, _: &TStructIdentifier) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn write_struct_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
@@ -268,19 +288,23 @@ where
         }
     }
 
+    #[inline]
     async fn write_field_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn write_field_stop(&mut self) -> crate::Result<()> {
         self.write_byte(field_type_to_u8(TType::Stop)).await
     }
 
+    #[inline]
     async fn write_bytes(&mut self, b: &[u8]) -> crate::Result<()> {
         self.write_i32(b.len() as i32).await?;
         self.transport.write_all(b).await.map_err(From::from)
     }
 
+    #[inline]
     async fn write_bool(&mut self, b: bool) -> crate::Result<()> {
         if b {
             self.write_i8(1).await
@@ -289,10 +313,12 @@ where
         }
     }
 
+    #[inline]
     async fn write_i8(&mut self, i: i8) -> crate::Result<()> {
         self.transport.write_i8(i).await.map_err(From::from)
     }
 
+    #[inline]
     async fn write_i16(&mut self, i: i16) -> crate::Result<()> {
         self.transport
             .write_i16::<BigEndian>(i)
@@ -300,6 +326,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn write_i32(&mut self, i: i32) -> crate::Result<()> {
         self.transport
             .write_i32::<BigEndian>(i)
@@ -307,6 +334,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn write_i64(&mut self, i: i64) -> crate::Result<()> {
         self.transport
             .write_i64::<BigEndian>(i)
@@ -314,6 +342,7 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn write_double(&mut self, d: f64) -> crate::Result<()> {
         self.transport
             .write_f64::<BigEndian>(d)
@@ -321,26 +350,31 @@ where
             .map_err(From::from)
     }
 
+    #[inline]
     async fn write_string(&mut self, s: &str) -> crate::Result<()> {
         self.write_bytes(s.as_bytes()).await
     }
 
+    #[inline]
     async fn write_list_begin(&mut self, identifier: &TListIdentifier) -> crate::Result<()> {
         self.write_byte(field_type_to_u8(identifier.element_type))
             .await?;
         self.write_i32(identifier.size).await
     }
 
+    #[inline]
     async fn write_list_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn write_set_begin(&mut self, identifier: &TSetIdentifier) -> crate::Result<()> {
         self.write_byte(field_type_to_u8(identifier.element_type))
             .await?;
         self.write_i32(identifier.size).await
     }
 
+    #[inline]
     async fn write_set_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
@@ -357,14 +391,17 @@ where
         self.write_i32(identifier.size).await
     }
 
+    #[inline]
     async fn write_map_end(&mut self) -> crate::Result<()> {
         Ok(())
     }
 
+    #[inline]
     async fn flush(&mut self) -> crate::Result<()> {
         self.transport.flush().await.map_err(From::from)
     }
 
+    #[inline]
     async fn write_byte(&mut self, b: u8) -> crate::Result<()> {
         self.transport.write_u8(b).await.map_err(From::from)
     }

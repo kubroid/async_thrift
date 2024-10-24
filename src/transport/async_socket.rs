@@ -93,8 +93,14 @@ impl TAsyncIoChannel for TAsyncTcpChannel {
     where
         Self: Sized,
     {
-        let channel = self.stream.take();
-        let (r_half, w_half) = channel.unwrap().into_split();
+        let channel = self.stream.take().map_or(
+            Err(crate::Error::Transport(crate::TransportError::new(
+                crate::TransportErrorKind::NotOpen,
+                "No open stream",
+            ))),
+            |s| Ok(s),
+        )?;
+        let (r_half, w_half) = channel.into_split();
         let read_half = AsyncReadHalf::new(r_half);
         let write_half = AsyncWriteHalf::new(w_half);
         Result::Ok((read_half, write_half))

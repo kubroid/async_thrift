@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-trait = "0.1.83"
 async_thrift = {path = "../async_thrift", features = ["rt-tokio"]}
-criterion = { version = "0.5.1", features = ["async_tokio"] }
+criterion = { version = "0.5.1", features = ["async_tokio", "html_reports"] }
+futures = "0.3.31"
 thrift = {path = "../thrift"}
-tokio = { version = "1.41.0", features = ["rt-multi-thread"] }
+tokio = { version = "1.41.0", features = ["rt-multi-thread", "time"] }
 
 [[bench]]
-name = "main"
+name = "client"
 harness = false

@@ -42,9 +42,9 @@ impl TAsyncTcpChannel {
         };
     }
     #[cfg(feature = "rt-tokio")]
-    pub fn close(&mut self) {
+    pub async fn close(&mut self) {
         if let Some(ref mut s) = self.stream {
-            let _ = s.shutdown();
+            let _ = s.shutdown().await;
         };
     }
 }
@@ -93,13 +93,13 @@ impl TAsyncIoChannel for TAsyncTcpChannel {
     where
         Self: Sized,
     {
-        let channel = self.stream.take().map_or(
-            Err(crate::Error::Transport(crate::TransportError::new(
-                crate::TransportErrorKind::NotOpen,
-                "No open stream",
-            ))),
-            |s| Ok(s),
-        )?;
+        let channel =
+            self.stream
+                .take()
+                .ok_or(crate::Error::Transport(crate::TransportError::new(
+                    crate::TransportErrorKind::NotOpen,
+                    "No open stream",
+                )))?;
         let (r_half, w_half) = channel.into_split();
         let read_half = AsyncReadHalf::new(r_half);
         let write_half = AsyncWriteHalf::new(w_half);
@@ -124,7 +124,6 @@ impl AsyncRead for TAsyncTcpChannel {
 #[async_trait]
 impl AsyncWrite for TAsyncTcpChannel {
     async fn write(&mut self, b: &[u8]) -> io::Result<usize> {
-        // println!("in {:?}", b);
         if let Some(ref mut s) = self.stream {
             s.write(b).await
         } else {

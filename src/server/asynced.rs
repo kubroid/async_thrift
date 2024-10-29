@@ -134,6 +134,7 @@ where
         Box<dyn TAsyncOutputProtocol + Send>,
     )> {
         // create the shared tcp stream
+        #[allow(unused_mut)]
         let mut channel = TAsyncTcpChannel::with_stream(stream);
 
         // split it into two - one to be owned by the

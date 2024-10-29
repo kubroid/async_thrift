@@ -3,6 +3,7 @@ use std::io;
 
 use async_trait::async_trait;
 use byteorder::BigEndian;
+use bytes::BytesMut;
 
 use crate::transport::{AsyncRead, AsyncReadBytesExt, AsyncWrite, AsyncWriteBytesExt};
 
@@ -46,7 +47,7 @@ pub struct TAsyncFramedReadTransport<C>
 where
     C: AsyncRead,
 {
-    buf: Vec<u8>,
+    buf: BytesMut,
     pos: usize,
     cap: usize,
     chan: C,
@@ -66,7 +67,7 @@ where
     /// of size `read_capacity` that wraps the given `TIoChannel`.
     pub fn with_capacity(read_capacity: usize, channel: C) -> TAsyncFramedReadTransport<C> {
         TAsyncFramedReadTransport {
-            buf: vec![0; read_capacity], // FIXME: do I actually have to do this?
+            buf: BytesMut::with_capacity(read_capacity), // FIXME: do I actually have to do this?
             pos: 0,
             cap: 0,
             chan: channel,
@@ -128,7 +129,7 @@ pub struct TAsyncFramedWriteTransport<C>
 where
     C: AsyncWrite,
 {
-    buf: Vec<u8>,
+    buf: BytesMut,
     channel: C,
 }
 
@@ -146,7 +147,7 @@ where
     /// of size `write_capacity` that wraps the given `TIoChannel`.
     pub fn with_capacity(write_capacity: usize, channel: C) -> TAsyncFramedWriteTransport<C> {
         TAsyncFramedWriteTransport {
-            buf: Vec::with_capacity(write_capacity),
+            buf: BytesMut::with_capacity(write_capacity),
             channel,
         }
     }

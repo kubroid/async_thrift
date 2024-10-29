@@ -52,7 +52,7 @@
 #[cfg(all(not(feature = "rt-tokio"), not(feature = "rt-async-std")))]
 compile_error!("Please select a runtime version: [rt-tokio, rt-async-std]");
 
-#[cfg(any(all(feature = "rt-tokio", feature = "rt-async-std")))]
+#[cfg(all(feature = "rt-tokio", feature = "rt-async-std"))]
 compile_error!("Please select only one runtime version");
 
 extern crate byteorder;

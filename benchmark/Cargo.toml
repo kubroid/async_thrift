@@ -1,0 +1,14 @@
+[package]
+name = "benchmark"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async_thrift = {path = "../async_thrift", features = ["rt-tokio"]}
+criterion = { version = "0.5.1", features = ["async_tokio"] }
+thrift = {path = "../thrift"}
+tokio = { version = "1.41.0", features = ["rt-multi-thread"] }
+
+[[bench]]
+name = "main"
+harness = false

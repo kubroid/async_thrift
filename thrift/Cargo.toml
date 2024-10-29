@@ -1,0 +1,8 @@
+[package]
+name = "thrift"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.83"
+async_thrift = {path = "../async_thrift", features = ["rt-tokio"]}

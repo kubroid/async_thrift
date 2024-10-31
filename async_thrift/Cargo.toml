@@ -9,10 +9,9 @@ documentation = "https://thrift.apache.org"
 readme = "README.md"
 exclude = ["Makefile*", "test/**", "*.iml"]
 keywords = ["thrift"]
-edition = "2018"
+edition = "2021"
 
 [features]
-default = ["rt-tokio"]
 rt-tokio = ["dep:tokio"]
 rt-async-std = ["dep:async-std"]
 

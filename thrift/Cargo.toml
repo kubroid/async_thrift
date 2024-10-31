@@ -3,6 +3,10 @@ name = "thrift"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+rt-tokio = ["async_thrift/rt-tokio"]
+rt-async-std = ["async_thrift/rt-async-std"]
+
 [dependencies]
 async-trait = "0.1.83"
-async_thrift = {path = "../async_thrift", features = ["rt-tokio"]}
+async_thrift = {path = "../async_thrift"}

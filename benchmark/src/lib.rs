@@ -1,3 +1,11 @@
+#[cfg(all(not(feature = "rt-tokio"), not(feature = "rt-async-std")))]
+compile_error!("Please select a runtime version: [rt-tokio, rt-async-std]");
+
+#[cfg(all(feature = "rt-tokio", feature = "rt-async-std"))]
+compile_error!("Please select only one runtime version");
+
+use std::time::Duration;
+
 use async_thrift::{
     protocol::async_binary::{
         TAsyncBinaryInputProtocol, TAsyncBinaryInputProtocolFactory, TAsyncBinaryOutputProtocol,
@@ -15,17 +23,30 @@ use async_thrift::{
 };
 use async_trait::async_trait;
 use thrift::idl::{BenchAsyncClient, BenchAsyncHandler, BenchAsyncProcessor};
-use tokio::{
+
+#[cfg(feature = "rt-tokio")]
+pub use tokio::{
     net::{
         tcp::{OwnedReadHalf, OwnedWriteHalf},
         TcpStream,
     },
-    runtime::Runtime,
+    task,
+    time::sleep,
 };
 
+#[cfg(feature = "rt-async-std")]
+pub use async_std::{net::TcpStream, task, task::sleep, task::JoinHandle};
+
+#[cfg(feature = "rt-tokio")]
 pub type ClientType = BenchAsyncClient<
     TAsyncBinaryInputProtocol<TAsyncFramedReadTransport<AsyncReadHalf<OwnedReadHalf>>>,
     TAsyncBinaryOutputProtocol<TAsyncFramedWriteTransport<AsyncWriteHalf<OwnedWriteHalf>>>,
+>;
+
+#[cfg(feature = "rt-async-std")]
+pub type ClientType = BenchAsyncClient<
+    TAsyncBinaryInputProtocol<TAsyncFramedReadTransport<AsyncReadHalf<TAsyncTcpChannel>>>,
+    TAsyncBinaryOutputProtocol<TAsyncFramedWriteTransport<AsyncWriteHalf<TAsyncTcpChannel>>>,
 >;
 
 pub async fn make_client(host: &str, port: u16) -> async_thrift::Result<ClientType> {
@@ -59,12 +80,12 @@ impl BenchAsyncHandler for Handler {
         Ok(p)
     }
     async fn handle_slow(&self, p: String) -> async_thrift::Result<String> {
-        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        sleep(Duration::from_millis(50)).await;
         Ok(p)
     }
 }
 
-pub fn run_server(rt: &Runtime, bind: String) {
+pub async fn run_server(bind: String) {
     let processor = BenchAsyncProcessor::new(Handler {});
     let mut server = TAsyncServer::new(
         TAsyncFramedReadTransportFactory::new(),
@@ -74,7 +95,7 @@ pub fn run_server(rt: &Runtime, bind: String) {
         processor,
     );
 
-    rt.spawn(async move {
-        let _ = server.listen(bind.to_owned()).await;
+    task::spawn(async move {
+        let _ = server.listen(bind.as_str()).await;
     });
 }

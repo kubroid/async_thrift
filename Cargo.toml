@@ -1,6 +1,19 @@
+[package]
+name = "async_thrift_solution"
+edition = "2021"
+
+
 [workspace]
 members = [
   "async_thrift",
   "benchmark",
   "thrift"]
 resolver = "2"
+
+[dependencies]
+async_thrift = {path = "./async_thrift", features = ["rt-async-std"]}
+benchmark = {path = "./benchmark", optional = true}
+
+[features]
+rt-tokio = ["benchmark/rt-tokio", "async_thrift/rt-tokio"]
+rt-async-std = ["benchmark/rt-async-std", "async_thrift/rt-async-std"]

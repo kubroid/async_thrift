@@ -54,7 +54,7 @@ fn criterion_benches(c: &mut Criterion) {
     }
 
     let size = 100;
-    for batch in [10, 25, 50, 75, 100, 250, 500, 750] {
+    for batch in [10, 50, 100, 250, 500, 750] {
         c.bench_function(
             format!("fast({}) batch of {:3}", size, batch).as_str(),
             |b| {
@@ -71,6 +71,22 @@ fn criterion_benches(c: &mut Criterion) {
                 })
             },
         );
+        c.bench_function(
+            format!("slow({}) batch of {:3}", size, batch).as_str(),
+            |b| {
+                #[cfg(feature = "rt-async-std")]
+                let rt = AsyncStdExecutor;
+                #[cfg(feature = "rt-tokio")]
+                let rt = &rt;
+                b.to_async(rt).iter(|| async {
+                    let mut handlers: Vec<JoinHandle<()>> = Vec::with_capacity(batch);
+                    for _i in 0..batch {
+                        handlers.push(task::spawn(call_slow(size)));
+                    }
+                    let _ = join_all(handlers).await;
+                })
+            },
+        );
     }
 }
 
@@ -78,7 +94,7 @@ criterion_group! {
     name = benches;
     config = Criterion::default()
         .warm_up_time(std::time::Duration::from_secs(1))
-        .sample_size(1000)
+        .sample_size(100)
         .measurement_time(std::time::Duration::from_secs(1));
     targets = criterion_benches
 }

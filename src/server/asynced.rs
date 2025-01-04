@@ -133,6 +133,7 @@ where
         Box<dyn TAsyncInputProtocol + Send>,
         Box<dyn TAsyncOutputProtocol + Send>,
     )> {
+        let _ = stream.set_nodelay(true);
         // create the shared tcp stream
         let mut channel = TAsyncTcpChannel::with_stream(stream);
 
